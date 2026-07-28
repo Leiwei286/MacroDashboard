@@ -93,7 +93,7 @@ def calculate_indicator(indicator_id: str, spec: dict[str, Any]) -> dict[str, An
             "unit": spec["unit"],
             "formula": spec["formula"],
             "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "source": "Yahoo Finance / COMEX futures",
+            "source": spec.get("source", "Yahoo Finance"),
         },
         "latest": latest,
         "data": points,

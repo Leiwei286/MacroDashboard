@@ -18,69 +18,72 @@
       <p id="update-time" class="text-sm text-slate-500">正在加载数据…</p>
     </header>
 
-    <section class="grid gap-5 md:grid-cols-3">
+    <section class="grid gap-5 md:grid-cols-2">
       <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
         <p class="text-sm text-slate-400">最新金铜比</p>
-        <p id="latest-value" class="mt-3 text-4xl font-bold text-amber-400">—</p>
-        <p id="latest-date" class="mt-2 text-sm text-slate-500">—</p>
+        <p id="gold-copper-latest-value" class="mt-3 text-4xl font-bold text-amber-400">—</p>
+        <p id="gold-copper-latest-date" class="mt-2 text-sm text-slate-500">—</p>
       </article>
-      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl md:col-span-2">
-        <p class="text-sm text-slate-400">指标说明</p>
-        <p class="mt-3 text-lg font-medium">COMEX 黄金主连价格 ÷ COMEX 铜主连价格</p>
-        <p class="mt-2 text-sm text-slate-500">比值上升通常表示黄金相对铜更强势；它不是单独的投资建议。</p>
+      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
+        <p class="text-sm text-slate-400">最新美元兑日元</p>
+        <p id="usd-jpy-latest-value" class="mt-3 text-4xl font-bold text-sky-400">—</p>
+        <p id="usd-jpy-latest-date" class="mt-2 text-sm text-slate-500">—</p>
       </article>
     </section>
 
-    <section class="mt-5 rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl sm:p-6">
-      <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">金铜比趋势</h2><span class="text-sm text-slate-500">可拖动底部时间轴缩放</span></div>
-      <div id="gold-copper-chart" class="h-[420px] w-full"></div>
-      <p id="error-message" class="hidden rounded-lg bg-red-950/50 p-4 text-sm text-red-300"></p>
+    <section class="mt-5 grid gap-5 lg:grid-cols-2">
+      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl sm:p-6">
+        <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">金铜比趋势</h2><span class="text-sm text-slate-500">可拖动时间轴缩放</span></div>
+        <div id="gold-copper-chart" class="h-[380px] w-full"></div>
+      </article>
+      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl sm:p-6">
+        <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">美元兑日元趋势</h2><span class="text-sm text-slate-500">可拖动时间轴缩放</span></div>
+        <div id="usd-jpy-chart" class="h-[380px] w-full"></div>
+      </article>
     </section>
+    <p id="error-message" class="mt-5 hidden rounded-lg bg-red-950/50 p-4 text-sm text-red-300"></p>
   </main>
 
   <script>
-    /** 通用图表渲染：支持单/双 Y 轴，chartData 为 [{date, value, ...}]。 */
     function renderChart(containerId, chartConfig, chartData) {
       const chart = echarts.init(document.getElementById(containerId));
       const dates = chartData.map(item => item.date);
-      const series = chartConfig.series.map((item, index) => ({
-        name: item.name, type: item.type || 'line', yAxisIndex: item.yAxisIndex || 0,
-        smooth: item.smooth ?? true, showSymbol: false,
+      const series = chartConfig.series.map(item => ({
+        name: item.name, type: 'line', smooth: true, showSymbol: false,
         data: chartData.map(row => row[item.field]),
-        lineStyle: { width: 3, color: item.color },
-        itemStyle: { color: item.color },
-        areaStyle: item.area ? { color: item.area } : undefined,
+        lineStyle: { width: 3, color: item.color }, itemStyle: { color: item.color },
+        areaStyle: { color: item.area },
       }));
       chart.setOption({
         backgroundColor: 'transparent', tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
         legend: { textStyle: { color: '#cbd5e1' }, data: series.map(s => s.name) },
-        grid: { left: 58, right: chartConfig.yAxes?.length > 1 ? 58 : 24, top: 45, bottom: 72 },
+        grid: { left: 58, right: 24, top: 45, bottom: 72 },
         xAxis: { type: 'category', data: dates, boundaryGap: false, axisLabel: { color: '#94a3b8' }, axisLine: { lineStyle: { color: '#334155' } } },
-        yAxis: (chartConfig.yAxes || [{ name: chartConfig.unit || '' }]).map((axis, index) => ({
-          type: 'value', name: axis.name, position: index ? 'right' : 'left',
-          axisLabel: { color: '#94a3b8' }, nameTextStyle: { color: '#94a3b8' }, splitLine: { lineStyle: { color: '#1e293b' } }
-        })),
-        dataZoom: [{ type: 'inside', start: 65, end: 100 }, { type: 'slider', start: 65, end: 100, height: 22, bottom: 15 }],
-        series,
+        yAxis: { type: 'value', name: chartConfig.unit, axisLabel: { color: '#94a3b8' }, nameTextStyle: { color: '#94a3b8' }, splitLine: { lineStyle: { color: '#1e293b' } } },
+        dataZoom: [{ type: 'inside', start: 65, end: 100 }, { type: 'slider', start: 65, end: 100, height: 22, bottom: 15 }], series,
       });
       window.addEventListener('resize', () => chart.resize());
-      return chart;
+    }
+
+    async function loadIndicator(id, file, chartConfig) {
+      const response = await fetch(file, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`${chartConfig.name}数据文件尚未生成，请先运行 Python 抓取脚本或等待 GitHub Actions 首次执行。`);
+      const payload = await response.json();
+      const latest = payload.latest;
+      document.getElementById(`${id}-latest-value`).textContent = `${latest.value.toFixed(2)} ${payload.meta.unit}`;
+      document.getElementById(`${id}-latest-date`).textContent = `交易日：${latest.date}`;
+      renderChart(`${id}-chart`, { unit: payload.meta.unit, series: [{ name: chartConfig.name, field: 'value', color: chartConfig.color, area: chartConfig.area }] }, payload.data);
+      return payload;
     }
 
     async function loadDashboard() {
       const error = document.getElementById('error-message');
       try {
-        const response = await fetch('./data/gold_copper_ratio.json', { cache: 'no-store' });
-        if (!response.ok) throw new Error('数据文件尚未生成。请先运行 Python 抓取脚本，或等待 GitHub Actions 首次执行。');
-        const payload = await response.json();
-        const latest = payload.latest;
-        document.getElementById('latest-value').textContent = `${latest.value.toFixed(2)} ${payload.meta.unit}`;
-        document.getElementById('latest-date').textContent = `交易日：${latest.date}`;
-        document.getElementById('update-time').textContent = `数据更新时间（UTC）：${payload.meta.updated_at.replace('T', ' ').replace('+00:00', '')}`;
-        renderChart('gold-copper-chart', {
-          unit: payload.meta.unit,
-          series: [{ name: '金铜比', field: 'value', color: '#fbbf24', area: 'rgba(251,191,36,.12)' }]
-        }, payload.data);
+        const [goldCopper] = await Promise.all([
+          loadIndicator('gold-copper', './data/gold_copper_ratio.json', { name: '金铜比', color: '#fbbf24', area: 'rgba(251,191,36,.12)' }),
+          loadIndicator('usd-jpy', './data/usd_jpy.json', { name: '美元兑日元', color: '#38bdf8', area: 'rgba(56,189,248,.12)' }),
+        ]);
+        document.getElementById('update-time').textContent = `数据更新时间（UTC）：${goldCopper.meta.updated_at.replace('T', ' ').replace('+00:00', '')}`;
       } catch (err) { error.textContent = err.message; error.classList.remove('hidden'); }
     }
     loadDashboard();
