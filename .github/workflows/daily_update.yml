@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install --upgrade akshare pandas
+        run: pip install --upgrade yfinance pandas
       - name: Fetch and export indicators
         run: python fetch_data.py
       - name: Commit refreshed JSON when changed
@@ -38,4 +38,3 @@ jobs:
           git add docs/data
           git commit -m "chore: update macro data"
           git push
-

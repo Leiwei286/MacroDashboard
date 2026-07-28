@@ -1,28 +1,46 @@
-"""配置驱动的 AKShare 数据抓取与静态 JSON 导出程序。"""
+"""配置驱动的数据抓取与静态 JSON 导出程序。"""
 
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import math
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import akshare as ak
 import pandas as pd
 
 from config import INDICATORS
 
 
 def fetch_series(series_id: str, source: dict[str, Any]) -> pd.DataFrame:
-    """按配置动态调用 AKShare，并返回 date + value 的规范化序列。"""
-    function = getattr(ak, source["akshare_function"])
-    raw = function(**source.get("params", {}))
+    """按配置动态调用数据提供方，并返回 date + value 的规范化序列。"""
+    provider = importlib.import_module(source["provider"])
+    function = getattr(provider, source["function"])
+    attempts = source.get("retries", 1)
+    raw = pd.DataFrame()
+    for attempt in range(1, attempts + 1):
+        raw = function(**source.get("params", {}))
+        if not raw.empty:
+            break
+        if attempt < attempts:
+            delay = source.get("retry_delay_seconds", 5) * attempt
+            print(f"{series_id}: 未获得数据，第 {attempt}/{attempts} 次重试将在 {delay} 秒后执行")
+            time.sleep(delay)
+    if raw.empty:
+        raise ValueError(f"{series_id}: 数据提供方在 {attempts} 次尝试后仍未返回数据")
+
+    # yfinance 的 download 在部分版本中即使只请求一个 ticker 也会返回 MultiIndex 列。
+    if isinstance(raw.columns, pd.MultiIndex):
+        raw.columns = raw.columns.get_level_values(0)
+    raw = raw.reset_index()
     required = [source["date_column"], source["value_column"]]
     missing = set(required) - set(raw.columns)
     if missing:
-        raise ValueError(f"{series_id}: AKShare 返回缺少列 {sorted(missing)}；实际列：{list(raw.columns)}")
+        raise ValueError(f"{series_id}: 数据提供方返回缺少列 {sorted(missing)}；实际列：{list(raw.columns)}")
 
     result = raw[required].copy()
     result.columns = ["date", series_id]
@@ -75,7 +93,7 @@ def calculate_indicator(indicator_id: str, spec: dict[str, Any]) -> dict[str, An
             "unit": spec["unit"],
             "formula": spec["formula"],
             "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "source": "AKShare / 东方财富国际期货历史行情",
+            "source": "Yahoo Finance / COMEX futures",
         },
         "latest": latest,
         "data": points,

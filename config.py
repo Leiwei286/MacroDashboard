@@ -1,7 +1,7 @@
 """指标配置中心。
 
 新增指标时，在 INDICATORS 中增加一条配置；抓取主程序无需改动。
-数据源函数均由 akshare 模块动态解析。
+数据源函数均由配置指定的数据提供方模块动态解析。
 """
 
 INDICATORS = {
@@ -17,18 +17,36 @@ INDICATORS = {
         "series": {
             "gold": {
                 "name": "COMEX 黄金",
-                "akshare_function": "futures_global_hist_em",
-                "params": {"symbol": "GC00Y"},
-                "date_column": "日期",
-                "value_column": "最新价",
+                "provider": "yfinance",
+                "function": "download",
+                "retries": 3,
+                "retry_delay_seconds": 10,
+                "params": {
+                    "tickers": "GC=F",
+                    "period": "max",
+                    "interval": "1d",
+                    "auto_adjust": False,
+                    "progress": False,
+                },
+                "date_column": "Date",
+                "value_column": "Close",
                 "unit": "美元/金衡盎司",
             },
             "copper": {
                 "name": "COMEX 铜",
-                "akshare_function": "futures_global_hist_em",
-                "params": {"symbol": "HG00Y"},
-                "date_column": "日期",
-                "value_column": "最新价",
+                "provider": "yfinance",
+                "function": "download",
+                "retries": 3,
+                "retry_delay_seconds": 10,
+                "params": {
+                    "tickers": "HG=F",
+                    "period": "max",
+                    "interval": "1d",
+                    "auto_adjust": False,
+                    "progress": False,
+                },
+                "date_column": "Date",
+                "value_column": "Close",
                 "unit": "美元/磅",
             },
         },
