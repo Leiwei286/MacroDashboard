@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install --upgrade yfinance pandas
+        run: pip install --upgrade yfinance pandas pandas-datareader
       - name: Fetch and export indicators
         run: python fetch_data.py
       - name: Commit refreshed JSON when changed
