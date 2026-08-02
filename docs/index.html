@@ -84,6 +84,10 @@
         <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">美元兑日元趋势</h2><span class="text-sm text-slate-500">可拖动时间轴缩放</span></div>
         <div id="usd-jpy-chart" class="h-[380px] w-full"></div>
       </article>
+      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl sm:p-6">
+        <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">美国10年期收益率趋势</h2><span class="text-sm text-slate-500">可拖动时间轴缩放</span></div>
+        <div id="us-10y-yields-chart" class="h-[380px] w-full"></div>
+      </article>
     </section>
     <p id="error-message" class="mt-5 hidden rounded-lg bg-red-950/50 p-4 text-sm text-red-300"></p>
   </main>
@@ -111,7 +115,7 @@
       return target.toISOString().slice(0, 10);
     }
 
-    function renderChanges(containerId, data, field = 'value', suffix = '') {
+    function renderChanges(containerId, data, field = 'value', suffix = '', includePercentChange = false) {
       const latest = data[data.length - 1];
       const container = document.getElementById(containerId);
       container.replaceChildren(...CHANGE_PERIODS.map(period => {
@@ -122,13 +126,15 @@
         label.textContent = period.label;
         const value = document.createElement('p');
         value.className = 'mt-1 whitespace-nowrap font-semibold';
-        if (!reference || !Number.isFinite(reference[field])) {
+        if (!reference || !Number.isFinite(reference[field]) || (includePercentChange && reference[field] === 0)) {
           value.classList.add('text-slate-400');
           value.textContent = '—';
         } else {
           const absoluteChange = latest[field] - reference[field];
           value.classList.add(absoluteChange > 0 ? 'text-red-400' : absoluteChange < 0 ? 'text-emerald-400' : 'text-slate-400');
-          value.textContent = `${absoluteChange >= 0 ? '+' : ''}${absoluteChange.toFixed(2)}${suffix}`;
+          const percentage = (absoluteChange / reference[field]) * 100;
+          const percentChange = includePercentChange ? `（${percentage >= 0 ? '+' : ''}${percentage.toFixed(2)}%）` : '';
+          value.textContent = `${absoluteChange >= 0 ? '+' : ''}${absoluteChange.toFixed(2)}${suffix}${percentChange}`;
         }
         item.append(label, value);
         return item;
@@ -203,7 +209,7 @@
       const latest = payload.latest;
       document.getElementById(`${id}-latest-value`).textContent = `${latest.value.toFixed(2)} ${payload.meta.unit}`;
       document.getElementById(`${id}-latest-date`).textContent = `交易日：${latest.date}`;
-      renderChanges(`${id}-changes`, payload.data);
+      renderChanges(`${id}-changes`, payload.data, 'value', '', true);
       renderChart(`${id}-chart`, { unit: payload.meta.unit, series: [{ name: chartConfig.name, field: 'value', color: chartConfig.color, area: chartConfig.area }] }, payload.data);
       return payload;
     }
@@ -220,6 +226,14 @@
           }),
         ]);
         renderYieldCards(yields);
+        renderChart('us-10y-yields-chart', {
+          unit: '%',
+          series: [
+            { name: '美国10年期国债收益率', field: 'nominal_yield', color: '#a78bfa', area: 'rgba(167,139,250,.10)' },
+            { name: '10年期TIPS', field: 'tips_yield', color: '#2dd4bf', area: 'rgba(45,212,191,.08)' },
+            { name: '10年期BEI', field: 'breakeven_inflation', color: '#fb7185', area: 'rgba(251,113,133,.08)' },
+          ],
+        }, yields.data);
         document.getElementById('update-time').textContent = `数据更新时间（UTC）：${goldCopper.meta.updated_at.replace('T', ' ').replace('+00:00', '')}`;
       } catch (err) { error.textContent = err.message; error.classList.remove('hidden'); }
     }
