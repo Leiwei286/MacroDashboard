@@ -8,22 +8,16 @@
     "history_years": 20,
     "unit": "倍",
     "formula": "gold / copper",
-    "updated_at": "2026-08-03T03:54:26+00:00",
+    "updated_at": "2026-08-04T03:36:30+00:00",
     "source": "Yahoo Finance / COMEX futures"
   },
   "latest": {
-    "date": "2026-08-02",
-    "value": 630.5783,
-    "gold": 4116.1001,
-    "copper": 6.5275
+    "date": "2026-08-03",
+    "value": 624.2774,
+    "gold": 4114.2998,
+    "copper": 6.5905
   },
   "data": [
-    {
-      "date": "2006-08-03",
-      "value": 182.7171,
-      "gold": 644.9,
-      "copper": 3.5295
-    },
     {
       "date": "2006-08-04",
       "value": 175.8362,
@@ -30187,10 +30181,10 @@
       "copper": 6.436
     },
     {
-      "date": "2026-08-02",
-      "value": 630.5783,
-      "gold": 4116.1001,
-      "copper": 6.5275
+      "date": "2026-08-03",
+      "value": 624.2774,
+      "gold": 4114.2998,
+      "copper": 6.5905
     }
   ]
 }
