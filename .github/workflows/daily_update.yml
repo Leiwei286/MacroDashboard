@@ -2,8 +2,8 @@ name: Daily macro data update
 
 on:
   schedule:
-    # 08:15 Beijing time (00:15 UTC). GitHub schedule runs in UTC.
-    - cron: "15 0 * * *"
+    # 05:00 Beijing time (21:00 UTC). GitHub schedule runs in UTC.
+    - cron: "00 21 * * *"
   workflow_dispatch:
 
 permissions:
