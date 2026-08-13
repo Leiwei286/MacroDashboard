@@ -73,6 +73,16 @@
           <div id="us-10y-bei-changes" class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm"></div>
         </div>
       </article>
+      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
+        <p class="text-sm text-slate-400">美国2年期国债收益率</p>
+        <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p id="us-2y-yield-latest-value" class="text-4xl font-bold text-orange-400">—</p>
+            <p id="us-2y-yield-latest-date" class="mt-2 text-sm text-slate-500">—</p>
+          </div>
+          <div id="us-2y-yield-changes" class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm"></div>
+        </div>
+      </article>
     </section>
 
     <section class="mt-5 grid gap-5 lg:grid-cols-2">
@@ -87,6 +97,10 @@
       <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl sm:p-6">
         <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">美国10年期收益率趋势</h2><span class="text-sm text-slate-500">可拖动时间轴缩放</span></div>
         <div id="us-10y-yields-chart" class="h-[380px] w-full"></div>
+      </article>
+      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-xl sm:p-6">
+        <div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-semibold">美国2年期国债收益率趋势</h2><span class="text-sm text-slate-500">可拖动时间轴缩放</span></div>
+        <div id="us-2y-yield-chart" class="h-[380px] w-full"></div>
       </article>
     </section>
     <p id="error-message" class="mt-5 hidden rounded-lg bg-red-950/50 p-4 text-sm text-red-300"></p>
@@ -202,14 +216,14 @@
       window.addEventListener('resize', () => chart.resize());
     }
 
-    async function loadIndicator(id, file, chartConfig) {
+    async function loadIndicator(id, file, chartConfig, includePercentChange) {
       const response = await fetch(file, { cache: 'no-store' });
       if (!response.ok) throw new Error(`${chartConfig.name}数据文件尚未生成，请先运行 Python 抓取脚本或等待 GitHub Actions 首次执行。`);
       const payload = await response.json();
       const latest = payload.latest;
       document.getElementById(`${id}-latest-value`).textContent = `${latest.value.toFixed(2)} ${payload.meta.unit}`;
       document.getElementById(`${id}-latest-date`).textContent = `交易日：${latest.date}`;
-      renderChanges(`${id}-changes`, payload.data, 'value', '', true);
+      renderChanges(`${id}-changes`, payload.data, 'value', '', includePercentChange);
       renderChart(`${id}-chart`, { unit: payload.meta.unit, series: [{ name: chartConfig.name, field: 'value', color: chartConfig.color, area: chartConfig.area }] }, payload.data);
       return payload;
     }
@@ -217,9 +231,10 @@
     async function loadDashboard() {
       const error = document.getElementById('error-message');
       try {
-        const [goldCopper, , yields] = await Promise.all([
-          loadIndicator('gold-copper', './data/gold_copper_ratio.json', { name: '金铜比', color: '#fbbf24', area: 'rgba(251,191,36,.12)' }),
-          loadIndicator('usd-jpy', './data/usd_jpy.json', { name: '美元兑日元', color: '#38bdf8', area: 'rgba(56,189,248,.12)' }),
+        const [goldCopper, , , yields] = await Promise.all([
+          loadIndicator('gold-copper', './data/gold_copper_ratio.json', { name: '金铜比', color: '#fbbf24', area: 'rgba(251,191,36,.12)' }, true),
+          loadIndicator('usd-jpy', './data/usd_jpy.json', { name: '美元兑日元', color: '#38bdf8', area: 'rgba(56,189,248,.12)' }, true),
+          loadIndicator('us-2y-yield', './data/us_2y_yield.json', { name: '美国2年期国债收益率', color: '#fb923c', area: 'rgba(251,146,60,.12)' }, false),
           fetch('./data/us_10y_yields.json', { cache: 'no-store' }).then(response => {
             if (!response.ok) throw new Error('美国10年期收益率数据文件尚未生成，请先运行 Python 抓取脚本或等待 GitHub Actions 首次执行。');
             return response.json();

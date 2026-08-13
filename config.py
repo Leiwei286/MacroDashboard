@@ -134,4 +134,30 @@ INDICATORS = {
             },
         },
     },
+    "us_2y_yield": {
+        "name": "美国2年期国债收益率",
+        "description": "美国2年期国债每日固定期限收益率。",
+        "chart_type": "line",
+        "frequency": "daily",
+        "history_years": 5,
+        "unit": "%",
+        "output_file": "docs/data/us_2y_yield.json",
+        "formula": "yield_2y",
+        "source": "FRED",
+        "series": {
+            "yield_2y": {
+                "name": "美国2年期国债收益率",
+                "provider": "pandas_datareader.data",
+                "function": "DataReader",
+                "params": {
+                    "name": "DGS2",
+                    "data_source": "fred",
+                    "start": "2000-01-01",
+                },
+                "date_column": "DATE",
+                "value_column": "DGS2",
+                "unit": "%",
+            },
+        },
+    },
 }
