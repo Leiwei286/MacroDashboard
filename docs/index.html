@@ -53,26 +53,28 @@
           <div id="us-10y-attribution" class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2"></div>
         </div>
       </article>
-      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
-        <p class="text-sm text-slate-400">10年期通胀保值债券（TIPS）</p>
-        <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p id="us-10y-tips-latest-value" class="text-4xl font-bold text-teal-400">—</p>
-            <p id="us-10y-tips-latest-date" class="mt-2 text-sm text-slate-500">—</p>
+      <div class="grid grid-rows-2 gap-5">
+        <article class="h-full rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
+          <p class="text-sm text-slate-400">10年期通胀保值债券（TIPS）</p>
+          <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p id="us-10y-tips-latest-value" class="text-4xl font-bold text-teal-400">—</p>
+              <p id="us-10y-tips-latest-date" class="mt-2 text-sm text-slate-500">—</p>
+            </div>
+            <div id="us-10y-tips-changes" class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm"></div>
           </div>
-          <div id="us-10y-tips-changes" class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm"></div>
-        </div>
-      </article>
-      <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
-        <p class="text-sm text-slate-400">10年期盈亏平衡通胀率（BEI）</p>
-        <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p id="us-10y-bei-latest-value" class="text-4xl font-bold text-rose-400">—</p>
-            <p id="us-10y-bei-latest-date" class="mt-2 text-sm text-slate-500">—</p>
+        </article>
+        <article class="h-full rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
+          <p class="text-sm text-slate-400">10年期盈亏平衡通胀率（BEI）</p>
+          <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p id="us-10y-bei-latest-value" class="text-4xl font-bold text-rose-400">—</p>
+              <p id="us-10y-bei-latest-date" class="mt-2 text-sm text-slate-500">—</p>
+            </div>
+            <div id="us-10y-bei-changes" class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm"></div>
           </div>
-          <div id="us-10y-bei-changes" class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm"></div>
-        </div>
-      </article>
+        </article>
+      </div>
       <article class="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
         <p class="text-sm text-slate-400">美国2年期国债收益率</p>
         <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -216,14 +218,14 @@
       window.addEventListener('resize', () => chart.resize());
     }
 
-    async function loadIndicator(id, file, chartConfig, includePercentChange) {
+    async function loadIndicator(id, file, chartConfig, includePercentChange, changeSuffix = '') {
       const response = await fetch(file, { cache: 'no-store' });
       if (!response.ok) throw new Error(`${chartConfig.name}数据文件尚未生成，请先运行 Python 抓取脚本或等待 GitHub Actions 首次执行。`);
       const payload = await response.json();
       const latest = payload.latest;
       document.getElementById(`${id}-latest-value`).textContent = `${latest.value.toFixed(2)} ${payload.meta.unit}`;
       document.getElementById(`${id}-latest-date`).textContent = `交易日：${latest.date}`;
-      renderChanges(`${id}-changes`, payload.data, 'value', '', includePercentChange);
+      renderChanges(`${id}-changes`, payload.data, 'value', changeSuffix, includePercentChange);
       renderChart(`${id}-chart`, { unit: payload.meta.unit, series: [{ name: chartConfig.name, field: 'value', color: chartConfig.color, area: chartConfig.area }] }, payload.data);
       return payload;
     }
@@ -234,7 +236,7 @@
         const [goldCopper, , , yields] = await Promise.all([
           loadIndicator('gold-copper', './data/gold_copper_ratio.json', { name: '金铜比', color: '#fbbf24', area: 'rgba(251,191,36,.12)' }, true),
           loadIndicator('usd-jpy', './data/usd_jpy.json', { name: '美元兑日元', color: '#38bdf8', area: 'rgba(56,189,248,.12)' }, true),
-          loadIndicator('us-2y-yield', './data/us_2y_yield.json', { name: '美国2年期国债收益率', color: '#fb923c', area: 'rgba(251,146,60,.12)' }, false),
+          loadIndicator('us-2y-yield', './data/us_2y_yield.json', { name: '美国2年期国债收益率', color: '#fb923c', area: 'rgba(251,146,60,.12)' }, false, '%'),
           fetch('./data/us_10y_yields.json', { cache: 'no-store' }).then(response => {
             if (!response.ok) throw new Error('美国10年期收益率数据文件尚未生成，请先运行 Python 抓取脚本或等待 GitHub Actions 首次执行。');
             return response.json();
