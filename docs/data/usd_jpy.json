@@ -8,20 +8,15 @@
     "history_years": 20,
     "unit": "日元/美元",
     "formula": "usd_jpy",
-    "updated_at": "2026-08-21T01:58:04+00:00",
+    "updated_at": "2026-08-22T01:50:39+00:00",
     "source": "Yahoo Finance"
   },
   "latest": {
     "date": "2026-08-21",
-    "value": 158.964,
-    "usd_jpy": 158.964
+    "value": 158.94,
+    "usd_jpy": 158.94
   },
   "data": [
-    {
-      "date": "2006-08-21",
-      "value": 115.97,
-      "usd_jpy": 115.97
-    },
     {
       "date": "2006-08-22",
       "value": 116.47,
@@ -25954,8 +25949,8 @@
     },
     {
       "date": "2026-08-21",
-      "value": 158.964,
-      "usd_jpy": 158.964
+      "value": 158.94,
+      "usd_jpy": 158.94
     }
   ]
 }
