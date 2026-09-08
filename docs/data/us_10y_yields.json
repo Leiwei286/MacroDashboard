@@ -8,7 +8,7 @@
     "history_years": 5,
     "unit": "%",
     "formula": "nominal_yield",
-    "updated_at": "2026-09-07T04:42:01+00:00",
+    "updated_at": "2026-09-08T04:36:32+00:00",
     "source": "FRED"
   },
   "latest": {
@@ -19,13 +19,6 @@
     "breakeven_inflation": 2.35
   },
   "data": [
-    {
-      "date": "2021-09-07",
-      "value": 1.38,
-      "nominal_yield": 1.38,
-      "tips_yield": -0.98,
-      "breakeven_inflation": 2.36
-    },
     {
       "date": "2021-09-08",
       "value": 1.35,
