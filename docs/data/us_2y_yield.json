@@ -8,7 +8,7 @@
     "history_years": 5,
     "unit": "%",
     "formula": "yield_2y",
-    "updated_at": "2026-09-20T04:54:11+00:00",
+    "updated_at": "2026-09-21T04:56:23+00:00",
     "source": "FRED"
   },
   "latest": {
@@ -17,11 +17,6 @@
     "yield_2y": 4.67
   },
   "data": [
-    {
-      "date": "2021-09-20",
-      "value": 0.23,
-      "yield_2y": 0.23
-    },
     {
       "date": "2021-09-21",
       "value": 0.22,
