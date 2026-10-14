@@ -8,24 +8,17 @@
     "history_years": 5,
     "unit": "%",
     "formula": "nominal_yield",
-    "updated_at": "2026-10-13T06:47:24+00:00",
+    "updated_at": "2026-10-14T04:54:19+00:00",
     "source": "FRED"
   },
   "latest": {
-    "date": "2026-10-08",
-    "value": 5.22,
-    "nominal_yield": 5.22,
-    "tips_yield": 2.87,
-    "breakeven_inflation": 2.35
+    "date": "2026-10-09",
+    "value": 5.24,
+    "nominal_yield": 5.24,
+    "tips_yield": 2.91,
+    "breakeven_inflation": 2.33
   },
   "data": [
-    {
-      "date": "2021-10-13",
-      "value": 1.56,
-      "nominal_yield": 1.56,
-      "tips_yield": -0.96,
-      "breakeven_inflation": 2.52
-    },
     {
       "date": "2021-10-14",
       "value": 1.52,
@@ -8747,6 +8740,13 @@
       "nominal_yield": 5.22,
       "tips_yield": 2.87,
       "breakeven_inflation": 2.35
+    },
+    {
+      "date": "2026-10-09",
+      "value": 5.24,
+      "nominal_yield": 5.24,
+      "tips_yield": 2.91,
+      "breakeven_inflation": 2.33
     }
   ]
 }
